@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/current_weather_page"
+        android:enabled="true"
+        android:icon="@drawable/icon_today"
+        android:title="@string/today_icon_text" />
+
+    <item
+        android:id="@+id/past_weather_page"
+        android:enabled="true"
+        android:icon="@drawable/icon_date_range"
+        android:title="@string/past_weather_icon_text" />
+
+    <item
+        android:id="@+id/settings_page"
+        android:enabled="true"
+        android:icon="@drawable/icon_settings"
+        android:title="@string/settings_icon_text" />
+
+</menu>

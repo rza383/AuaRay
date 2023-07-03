@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="itemIconTint">@color/spaceCadet</item>
+        <item name="itemTextColor">@color/spaceCadet</item>
+    </style>
+</resources>

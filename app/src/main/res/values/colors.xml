@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="frameBackground">#FFFFFFFF</color>
+    <color name="colorPrimary">#4A4E69</color>
+    <color name="colorPrimaryDark">#22223B</color>
+    <color name="colorAccent">#7e53c5</color>
+    <color name="spaceCadet">#22223B</color>
+    <color name="pale">#C9ADA7</color>
+    <color name="backgroundBottom">#F2E9E4</color>
+    <color name="backgroundTop">#9A8C98</color>
+    <color name="colorText">#22223B</color>
+</resources>
