@@ -14,6 +14,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -24,12 +26,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kz.rza383.auaray.R
+import kz.rza383.auaray.data.ForecastWeather
 import kz.rza383.auaray.network.CurrentWeatherApi
 import java.util.Locale
 
 private const val TAG = "viewmodel"
 private const val UV_INDEX= "uv_index_max"
 private const val PRECIPITATION_CHANCE = "precipitation_probability_max"
+private const val TimeZone = "auto"
 
 enum class WeatherApiStatus { LOADING, ERROR, DONE }
 
@@ -41,7 +45,9 @@ enum class UvIndex(val stringReference: Int) {
     EXTREME(R.string.extreme)
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class CurrentWeatherViewModel(application: Application): AndroidViewModel(application) {
+    private val dailyParams = arrayOf("temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "precipitation_probability_max")
     private val app = application
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(app)
@@ -70,8 +76,15 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
     val chanceOfRain2day: StateFlow<Int> get() = _chanceOfRain2day
     private val _isDay = MutableStateFlow(0)
     val isDay: StateFlow<Int> get() = _isDay
+    private val forecast = MutableLiveData<ForecastWeather>()
+    private val _set = MutableLiveData<LineDataSet>()
+    val set: LiveData<LineDataSet> get() = _set
     private var latitudeValue: Float? = null
     private var longitudeValue: Float? = null
+
+    init {
+        getLocation()
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -132,8 +145,7 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
                 PRECIPITATION_CHANCE,
                 "true",
                 "1",
-                "auto")
-        _status.value = WeatherApiStatus.DONE
+                TimeZone)
         _currentWeather.value = apiCallResult.listOfWeatherData
         _elevation.value = apiCallResult.elevation
         _currentWeather.value.apply {
@@ -146,10 +158,46 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
             getUvIndex(uvIndex.first().toInt())
             _chanceOfRain2day.value = precipitationChance.first()
         }
-        Log.d(TAG, "uv val ${todaysUvIndex}")
-        Log.d(TAG, "${todaysUvIndex}, ${chanceOfRain2day.value}")
     }
 
+    private suspend fun getForecastFromApi(){
+        val apiCallResult = CurrentWeatherApi
+            .retrofitService
+            .getForecast(latitudeValue!!,
+                longitudeValue!!,
+                dailyParams,
+                "7",
+                TimeZone)
+        Log.d(TAG, "${apiCallResult.forecast}")
+        forecast.value = apiCallResult.forecast
+        _set.postValue(prepareDataForChart())
+    }
+
+    private fun prepareDataForChart(): LineDataSet {
+        val dataSet = mutableListOf<Entry>()
+        val days = forecast.value?.time?.map { date ->
+                date.split("-").last().toFloat() }
+
+        val temperatureList = forecast.value?.tempMax?.map { t -> t.toFloat() }
+        if (days != null && temperatureList != null) {
+            for (i in days.indices) {
+                dataSet.add(Entry(days[i], temperatureList[i]))
+            }
+        }
+        return LineDataSet(dataSet, app.resources.getString(R.string.chart_description))
+    }
+    fun getForecast(){
+        viewModelScope.launch {
+            _status.value = WeatherApiStatus.LOADING
+            try {
+                getForecastFromApi()
+                _status.value = WeatherApiStatus.DONE
+            } catch (e: Exception){
+                _status.value = WeatherApiStatus.ERROR
+                Log.d(TAG, e.message!!)
+            }
+        }
+    }
     private fun getCurrentWeather(){
         viewModelScope.launch {
             _status.value = WeatherApiStatus.LOADING

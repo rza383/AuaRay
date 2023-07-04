@@ -8,7 +8,7 @@
     <string name="veryHigh">asa zor</string>
     <string name="extreme">ekstremaldyq</string>
     <string name="today_icon_text">bügın</string>
-    <string name="past_weather_icon_text">kelesi 10 kün</string>
+    <string name="past_weather_icon_text">kelesi 7 kün</string>
     <string name="settings_icon_text">baptau</string>
     <string name="rightNow">aua ray däl qazir</string>
     <string name="permissionTitle">Nazar audaryñyz!</string>
@@ -25,4 +25,6 @@
     <string name="currentElevation">%s m</string>
     <string name="currentWindSpeed">%s km/h</string>
     <string name="currentLocalityName">%s</string>
+    <string name="weather_forecast">aua raiy boljamy</string>
+    <string name="chart_description">7 kün boljam</string>
 </resources>

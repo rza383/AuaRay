@@ -75,6 +75,8 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     //lottie
     implementation("com.airbnb.android:lottie:6.0.0")
+    //MPChart
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
 
 

@@ -11,10 +11,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.gms.location.CurrentLocationRequest
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kz.rza383.auaray.R
@@ -22,9 +24,7 @@ import kz.rza383.auaray.databinding.FragmentCurrentWeatherBinding
 
 class CurrentWeatherFragment : Fragment() {
 
-    private val currentWeatherViewModel by lazy {
-        ViewModelProvider(this)[CurrentWeatherViewModel::class.java]
-    }
+    private val sharedViewModel: CurrentWeatherViewModel by activityViewModels()
     private var _binding: FragmentCurrentWeatherBinding? = null
     private val binding get() = _binding!!
     private var currentTemperature: TextView? = null
@@ -47,7 +47,7 @@ class CurrentWeatherFragment : Fragment() {
     ): View? {
         _binding = FragmentCurrentWeatherBinding.inflate(inflater)
         binding.lifecycleOwner = this
-        binding.viewModel = currentWeatherViewModel
+        binding.viewModel = sharedViewModel
         getLocation()
         return binding.root
     }

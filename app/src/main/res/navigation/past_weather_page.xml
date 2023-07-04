@@ -9,6 +9,6 @@
     <fragment
         android:id="@+id/pastWeather"
         android:name="kz.rza383.auaray.ui.PastWeatherFragment"
-        android:label="Past"
+        android:label="@string/weather_forecast"
         tools:layout="@layout/fragment_past_weather" />
 </navigation>
