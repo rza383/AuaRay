@@ -27,7 +27,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kz.rza383.auaray.R
 import kz.rza383.auaray.data.ForecastWeather
+import kz.rza383.auaray.data.WeatherItem
 import kz.rza383.auaray.network.CurrentWeatherApi
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 private const val TAG = "viewmodel"
@@ -79,12 +85,15 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
     private val forecast = MutableLiveData<ForecastWeather>()
     private val _set = MutableLiveData<LineDataSet>()
     val set: LiveData<LineDataSet> get() = _set
+    private val _weatherListData = MutableLiveData<List<WeatherItem>>()
+    val weatherListData: LiveData<List<WeatherItem>> get() = _weatherListData
     private var latitudeValue: Float? = null
     private var longitudeValue: Float? = null
 
-    init {
-        getLocation()
-    }
+//    init {
+//        _weatherListData.value = mutableListOf()
+//        getLocation()
+//    }
 
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -170,7 +179,19 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
                 TimeZone)
         Log.d(TAG, "${apiCallResult.forecast}")
         forecast.value = apiCallResult.forecast
+        forecast.value?.let {
+            constructListData(
+                it.time,
+                it.tempMax,
+                it.tempMin,
+                it.sunset,
+                it.sunrise,
+                it.chanceOfPrecipitationMax
+            )
         _set.postValue(prepareDataForChart())
+
+        }
+
     }
 
     private fun prepareDataForChart(): LineDataSet {
@@ -222,7 +243,46 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
             }
         }
     }
-
+    private fun constructListData(
+        time: List<String>,
+        tempMaxList: List<Double>,
+        tempMinList: List<Double>,
+        sunsetTime: List<String>,
+        sunriseTime: List<String>,
+        chanceOfRainList: List<Int>) {
+        val dateInputFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val timeInputFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+        val formattedDay = time.map {
+            val date = LocalDate.parse(it, dateInputFormat)
+            "${date.dayOfMonth.toString().padStart(2,'0')}-${date.monthValue.toString().padStart(2,'0')}"
+        }
+        val formattedSunsetTime = sunsetTime.map {
+            LocalTime.parse(it, timeInputFormat).toString() }
+        val formattedSunriseTime = sunriseTime.map {
+            LocalTime.parse(it, timeInputFormat).toString()
+        }
+        Log.d(TAG, "value of list ${formattedDay.joinToString (" ")}")
+        Log.d(TAG, "value of list ${tempMaxList.joinToString (" ")}")
+        Log.d(TAG, "value of list ${tempMinList.joinToString (" ")}")
+        Log.d(TAG, "value of list ${formattedSunriseTime.joinToString (" ")}")
+        Log.d(TAG, "value of list ${formattedSunsetTime.joinToString (" ")}")
+        Log.d(TAG, "value of list ${chanceOfRainList.joinToString (" ")}")
+        val listOfForecasts = mutableListOf<WeatherItem>()
+        for(i in time.indices){
+            listOfForecasts.add(
+                WeatherItem(
+                    formattedDay[i],
+                    tempMaxList[i].toInt(),
+                    tempMinList[i].toInt(),
+                    formattedSunriseTime[i],
+                    formattedSunsetTime[i],
+                    chanceOfRainList[i]
+                )
+            )
+        }
+        _weatherListData.value = listOfForecasts
+        Log.d(TAG, "value of list ${_weatherListData.value?.joinToString (" ") }}")
+    }
     private fun getUvIndex(uvIndex: Int) {
         when (uvIndex) {
             in lowRange -> todaysUvIndex.set(UvIndex.LOW.stringReference)

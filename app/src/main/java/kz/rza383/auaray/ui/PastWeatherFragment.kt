@@ -9,8 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.PagerSnapHelper
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -38,6 +41,13 @@ class PastWeatherFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = sharedViewModel
         sharedViewModel.getForecast()
+        val recyclerView = binding.forecastLst
+        recyclerView.apply {
+            adapter = ForecastAdapter()
+            addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.HORIZONTAL).apply {
+                setDrawable(ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.divider, null)!!)
+            })
+        }
         return binding.root
     }
 
@@ -48,7 +58,7 @@ class PastWeatherFragment : Fragment() {
         forecastChart = binding.forecastChart
         forecastChart.apply {
             setBackgroundColor(
-                ContextCompat.getColor(requireContext(), R.color.pale))
+                ContextCompat.getColor(requireContext(), R.color.backgroundBottom))
             description.isEnabled = false
             xAxis.apply {
                 setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE)
@@ -65,8 +75,8 @@ class PastWeatherFragment : Fragment() {
             axisRight.isEnabled = false
         }
         sharedViewModel.set.observe(viewLifecycleOwner) { set ->
-            set.setColors(*ColorTemplate.PASTEL_COLORS)
-            set.valueTextSize = 7f
+            set.setColors(*ColorTemplate.MATERIAL_COLORS)
+            set.valueTextSize = 10f
             forecastChart.data = LineData(set)
             forecastChart.notifyDataSetChanged()
             forecastChart.invalidate()

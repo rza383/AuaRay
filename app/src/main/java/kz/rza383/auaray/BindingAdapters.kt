@@ -8,11 +8,21 @@ import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.airbnb.lottie.LottieAnimationView
 import com.example.loadinganimation.LoadingAnimation
+import kz.rza383.auaray.data.WeatherItem
 import kz.rza383.auaray.ui.CurrentWeatherViewModel
+import kz.rza383.auaray.ui.ForecastAdapter
 import kz.rza383.auaray.ui.WeatherApiStatus
+
+@BindingAdapter("listData")
+fun bindRecyclerView(recyclerView: RecyclerView,
+                     data: List<WeatherItem>?){
+    val adapter = recyclerView.adapter as ForecastAdapter
+    adapter.submitList(data)
+}
 
 @BindingAdapter("setDayTimeAnimation")
 fun bindAnimation(view:LottieAnimationView,

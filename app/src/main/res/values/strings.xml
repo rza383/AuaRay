@@ -21,10 +21,11 @@
     <string name="uvIndex">Ütrakülgın indeks</string>
     <string name="precipChance">Jauyn</string>
     <string name="currentUvIndex">%s</string>
-    <string name="currentPrecipitationChance">%s %%</string>
+    <string name="currentPrecipitationChance">%s%%</string>
     <string name="currentElevation">%s m</string>
     <string name="currentWindSpeed">%s km/h</string>
     <string name="currentLocalityName">%s</string>
     <string name="weather_forecast">aua raiy boljamy</string>
     <string name="chart_description">7 kün boljam</string>
+    <string name="temp_max_min">%s°C/%s°C</string>
 </resources>
