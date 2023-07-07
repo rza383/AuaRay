@@ -12,22 +12,7 @@ import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-val interceptor : HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
-    level = HttpLoggingInterceptor.Level.BODY
-}
-val client : OkHttpClient = OkHttpClient.Builder().apply {
-    addInterceptor(interceptor) }
-    .build()
-private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
-    .build()
-private const val BASE_URL =
-    "https://api.open-meteo.com"
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(MoshiConverterFactory.create(moshi))
-    .baseUrl(BASE_URL)
-    .client(client)
-    .build()
+
 interface CurrentWeatherApiService {
     @GET("/v1/forecast?")
     suspend fun getCurrentWeather(@Query("latitude") latitude: Float,
@@ -45,8 +30,3 @@ interface CurrentWeatherApiService {
                             @Query("timezone") auto: String): ForecastResponse
 }
 
-object CurrentWeatherApi {
-    val retrofitService: CurrentWeatherApiService by lazy {
-        retrofit.create(CurrentWeatherApiService::class.java)
-    }
-}

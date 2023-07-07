@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -35,6 +36,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    kapt {
+        correctErrorTypes = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -77,6 +81,9 @@ dependencies {
     implementation("com.airbnb.android:lottie:6.0.0")
     //MPChart
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    //Dagger - Hilt
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
 
 
 

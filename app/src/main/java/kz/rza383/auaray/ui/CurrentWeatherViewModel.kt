@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kz.rza383.auaray.data.WeatherData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,13 +29,14 @@ import kotlinx.coroutines.launch
 import kz.rza383.auaray.R
 import kz.rza383.auaray.data.ForecastWeather
 import kz.rza383.auaray.data.WeatherItem
-import kz.rza383.auaray.network.CurrentWeatherApi
+import kz.rza383.domain.repository.MyRepository
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import javax.inject.Inject
 
 private const val TAG = "viewmodel"
 private const val UV_INDEX= "uv_index_max"
@@ -52,7 +54,11 @@ enum class UvIndex(val stringReference: Int) {
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-class CurrentWeatherViewModel(application: Application): AndroidViewModel(application) {
+@HiltViewModel
+class CurrentWeatherViewModel @Inject constructor(
+    application: Application,
+    private val repository: MyRepository): AndroidViewModel(application) {
+
     private val dailyParams = arrayOf("temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "precipitation_probability_max")
     private val app = application
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
@@ -89,12 +95,6 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
     val weatherListData: LiveData<List<WeatherItem>> get() = _weatherListData
     private var latitudeValue: Float? = null
     private var longitudeValue: Float? = null
-
-//    init {
-//        _weatherListData.value = mutableListOf()
-//        getLocation()
-//    }
-
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun getLocation() {
@@ -146,8 +146,7 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
     }
 
     private suspend fun getDataFromApi(){
-        val apiCallResult = CurrentWeatherApi
-            .retrofitService
+        val apiCallResult = repository
             .getCurrentWeather(latitudeValue!!,
                 longitudeValue!!,
                 UV_INDEX,
@@ -170,8 +169,7 @@ class CurrentWeatherViewModel(application: Application): AndroidViewModel(applic
     }
 
     private suspend fun getForecastFromApi(){
-        val apiCallResult = CurrentWeatherApi
-            .retrofitService
+        val apiCallResult = repository
             .getForecast(latitudeValue!!,
                 longitudeValue!!,
                 dailyParams,

@@ -17,10 +17,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.location.CurrentLocationRequest
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kz.rza383.auaray.R
 import kz.rza383.auaray.databinding.FragmentCurrentWeatherBinding
+@AndroidEntryPoint
 
 class CurrentWeatherFragment : Fragment() {
 

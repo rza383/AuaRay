@@ -22,9 +22,10 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
+import dagger.hilt.android.AndroidEntryPoint
 import kz.rza383.auaray.R
 import kz.rza383.auaray.databinding.FragmentPastWeatherBinding
-
+@AndroidEntryPoint
 class PastWeatherFragment : Fragment() {
 
     private val sharedViewModel: CurrentWeatherViewModel by activityViewModels()

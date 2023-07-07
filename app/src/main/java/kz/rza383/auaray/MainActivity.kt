@@ -20,9 +20,10 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.elevation.SurfaceColors
+import dagger.hilt.android.AndroidEntryPoint
 import kz.rza383.auaray.databinding.ActivityMainBinding
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
