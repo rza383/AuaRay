@@ -16,15 +16,22 @@ import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.gms.tasks.Task
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kz.rza383.auaray.data.WeatherData
+import kotlinx.coroutines.CoroutineDispatcher
+import kz.rza383.auaray.network.WeatherData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kz.rza383.auaray.R
-import kz.rza383.auaray.data.ForecastWeather
+import kz.rza383.auaray.network.ForecastWeather
 import kz.rza383.auaray.data.WeatherItem
+import kz.rza383.auaray.data.database.CurrentWeatherEntity
+import kz.rza383.auaray.data.repository.DbRepository
 import kz.rza383.auaray.data.repository.MyRepositoryImpl
+import kz.rza383.auaray.di.IoDispatcher
+import kz.rza383.domain.WeatherToday
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -50,7 +57,10 @@ enum class UvIndex(val stringReference: Int) {
 class CurrentWeatherViewModel @Inject constructor(
     private val currentLocationTask: Task<Location>,
     private val gcd: Geocoder,
-    private val repository: MyRepositoryImpl): ViewModel() {
+    private val repository: MyRepositoryImpl,
+    private val dbRepository: DbRepository,
+    @IoDispatcher
+    private val ioDispatcher: CoroutineDispatcher): ViewModel() {
 
     private val dailyParams = arrayOf("temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "precipitation_probability_max")
     private val lowRange = 1..2
@@ -58,24 +68,12 @@ class CurrentWeatherViewModel @Inject constructor(
     private val highRange = 6..7
     private val veryHighRange = 8..10
     private val _status = MutableLiveData<WeatherApiStatus>()
+    val weatherToday = dbRepository.today
     val status: LiveData<WeatherApiStatus> get() = _status
-    private val _currentWeather = MutableStateFlow<WeatherData>(WeatherData(0.0, 0.0,0,0,""))
-    private val _temperature = MutableStateFlow(0.0)
-    val temperature: StateFlow<Double> get() = _temperature
-    private val _elevation = MutableStateFlow(0)
-    val elevation: StateFlow<Int> get() = _elevation
-    private val _windSpeed = MutableStateFlow(0.0)
-    val windSpeed: StateFlow<Double> get() = _windSpeed
-    private val _weatherCode = MutableStateFlow(0)
-    val weatherCode: StateFlow<Int> get() = _weatherCode
     val isLoading = ObservableBoolean()
-    private val _locationName = MutableLiveData<String>()
+    private val _locationName = MutableLiveData<String>("")
     val locationName: LiveData<String> get() = _locationName
     val todaysUvIndex = ObservableInt()
-    private val _chanceOfRain2day = MutableStateFlow(0)
-    val chanceOfRain2day: StateFlow<Int> get() = _chanceOfRain2day
-    private val _isDay = MutableStateFlow(0)
-    val isDay: StateFlow<Int> get() = _isDay
     private val forecast = MutableLiveData<ForecastWeather>()
     private val _set = MutableLiveData<LineDataSet>()
     val set: LiveData<LineDataSet> get() = _set
@@ -91,9 +89,9 @@ class CurrentWeatherViewModel @Inject constructor(
                 with(task.result){
                     latitudeValue = latitude.toFloat()
                     longitudeValue = longitude.toFloat()
+                    getLocationName()
                     getCurrentWeather()
                 }
-                 getLocationName()
             } else {
                 val exception = task.exception
                  Log.d(TAG, "getCurrentLocation() result: $exception")
@@ -136,18 +134,19 @@ class CurrentWeatherViewModel @Inject constructor(
                 "true",
                 "1",
                 TimeZone)
-        _currentWeather.value = apiCallResult.listOfWeatherData
-        _elevation.value = apiCallResult.elevation
-        _currentWeather.value.apply {
-            _temperature.value = temperature
-            _windSpeed.value = windSpeed
-            _weatherCode.value = weatherCode
-            _isDay.value = isDay
-        }
-        apiCallResult.extraData.apply {
-            getUvIndex(uvIndex.first().toInt())
-            _chanceOfRain2day.value = precipitationChance.first()
-        }
+        val today = CurrentWeatherEntity(
+            locationName = _locationName.value ?: "",
+            chanceOfPrecipitation = apiCallResult.extraData.precipitationChance.first(),
+            elevation = apiCallResult.elevation,
+            temperature = apiCallResult.listOfWeatherData.temperature,
+            time = apiCallResult.listOfWeatherData.time,
+            isDay = apiCallResult.listOfWeatherData.isDay,
+            uvIndex = apiCallResult.extraData.uvIndex.first(),
+            windSpeed = apiCallResult.listOfWeatherData.windSpeed
+        )
+        getUvIndex(today.uvIndex.toInt())
+        dbRepository.saveWeather(today)
+
     }
 
     private suspend fun getForecastFromApi(){
@@ -202,13 +201,13 @@ class CurrentWeatherViewModel @Inject constructor(
     private fun getCurrentWeather(){
         viewModelScope.launch {
             _status.value = WeatherApiStatus.LOADING
-           try {
-               getDataFromApi()
-               _status.value = WeatherApiStatus.DONE
-           } catch (e: Exception){
-               _status.value = WeatherApiStatus.ERROR
-               Log.d(TAG, e.message!!)
-           }
+            try {
+                getDataFromApi()
+                _status.value = WeatherApiStatus.DONE
+            } catch (e: Exception){
+                _status.value = WeatherApiStatus.ERROR
+                Log.d(TAG, e.message!!)
+            }
         }
     }
 

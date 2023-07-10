@@ -1,6 +1,7 @@
-package kz.rza383.auaray.data
+package kz.rza383.auaray.network
 
 import com.squareup.moshi.Json
+import kz.rza383.auaray.data.database.CurrentWeatherEntity
 
 data class CurrentWeather(
     val elevation: Int,
@@ -28,3 +29,6 @@ data class Daily(
     @Json(name = "precipitation_probability_max")
     val precipitationChance: List<Int>
 )
+
+
+

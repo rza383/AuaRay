@@ -1,21 +1,22 @@
 package kz.rza383.auaray.data.repository
 
 import android.app.Application
-import android.location.Location
-import android.util.Log
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.tasks.Task
 import dagger.Lazy
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import kz.rza383.auaray.R
-import kz.rza383.auaray.data.CurrentWeather
-import kz.rza383.auaray.data.ForecastResponse
+import kz.rza383.auaray.network.CurrentWeather
+import kz.rza383.auaray.network.ForecastResponse
+import kz.rza383.auaray.di.IoDispatcher
 import kz.rza383.auaray.network.CurrentWeatherApiService
 import kz.rza383.domain.repository.MyRepository
 import javax.inject.Inject
 
 class MyRepositoryImpl @Inject constructor(
     private val api: Lazy<CurrentWeatherApiService>,
-    private val appContext: Application
+    private val appContext: Application,
+    @IoDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ): MyRepository {
 
     val chartDescription =
@@ -30,17 +31,20 @@ class MyRepositoryImpl @Inject constructor(
         forecastDays: String,
         auto: String
     ): CurrentWeather =
-        api
-            .get()
-            .getCurrentWeather(
-            latitude,
-            longitude,
-            uvIndex,
-            precipitationChance,
-            isCurrentWeather,
-            forecastDays,
-            auto
-        )
+        withContext(ioDispatcher){
+            api
+                .get()
+                .getCurrentWeather(
+                    latitude,
+                    longitude,
+                    uvIndex,
+                    precipitationChance,
+                    isCurrentWeather,
+                    forecastDays,
+                    auto
+                )
+        }
+
 
     override suspend fun getForecast(
         latitude: Float,
@@ -49,14 +53,17 @@ class MyRepositoryImpl @Inject constructor(
         forecastDays: String,
         auto: String
     ): ForecastResponse =
-        api
-            .get()
-            .getForecast(
-                latitude,
-                longitude,
-                dailyParams,
-                forecastDays,
-                auto
-            )
+        withContext(ioDispatcher){
+            api
+                .get()
+                .getForecast(
+                    latitude,
+                    longitude,
+                    dailyParams,
+                    forecastDays,
+                    auto
+                )
+        }
+
 
 }

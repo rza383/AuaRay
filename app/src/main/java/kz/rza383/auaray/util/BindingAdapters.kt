@@ -1,6 +1,5 @@
-package kz.rza383.auaray
+package kz.rza383.auaray.util
 
-import android.content.res.Resources
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -9,11 +8,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.airbnb.lottie.LottieAnimationView
 import com.example.loadinganimation.LoadingAnimation
+import kz.rza383.auaray.R
 import kz.rza383.auaray.data.WeatherItem
-import kz.rza383.auaray.ui.CurrentWeatherViewModel
 import kz.rza383.auaray.ui.ForecastAdapter
 import kz.rza383.auaray.ui.WeatherApiStatus
 

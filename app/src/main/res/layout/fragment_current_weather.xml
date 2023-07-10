@@ -6,6 +6,7 @@
         <variable
             name="viewModel"
             type="kz.rza383.auaray.ui.CurrentWeatherViewModel" />
+
     </data>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
@@ -22,8 +23,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/mainUIElements"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:constraintLayoutVisibilityCondition="@{viewModel.status}">
+                android:layout_height="match_parent">
 
                 <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/animationView"
@@ -34,7 +34,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:lottie_autoPlay="true"
                     app:lottie_loop="true"
-                    app:setDayTimeAnimation="@{viewModel.isDay}" />
+                    app:setDayTimeAnimation="@{viewModel.weatherToday.isDay}" />
 
                 <ImageView
                     android:id="@+id/localityIcon"
@@ -50,7 +50,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="@{@string/currentLocalityName(viewModel.locationName)}"
+                    android:text="@{@string/currentLocalityName(viewModel.weatherToday.location)}"
                     tools:text="temp"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                     android:textColor="@color/colorText"
@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="@{@string/currentTemperature(viewModel.temperature)}"
+                    android:text="@{@string/currentTemperature(viewModel.weatherToday.temperature)}"
                     tools:text="temp"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                     android:textColor="@color/colorText"
@@ -136,7 +136,7 @@
                                android:layout_width="wrap_content"
                                android:layout_height="wrap_content"
                                android:layout_marginTop="4dp"
-                               android:text="@{@string/currentElevation(viewModel.elevation)}"
+                               android:text="@{@string/currentElevation(viewModel.weatherToday.elevation)}"
                                tools:text="elevation"
                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                android:textColor="@color/colorText"
@@ -195,7 +195,7 @@
                                android:layout_width="wrap_content"
                                android:layout_height="wrap_content"
                                android:layout_marginTop="4dp"
-                               android:text="@{@string/currentWindSpeed(viewModel.windSpeed)}"
+                               android:text="@{@string/currentWindSpeed(viewModel.weatherToday.windSpeed)}"
                                tools:text="wind speed"
                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                android:textColor="@color/colorText"
@@ -320,7 +320,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="@{@string/currentPrecipitationChance(viewModel.chanceOfRain2day)}"
+                                android:text="@{@string/currentPrecipitationChance(viewModel.weatherToday.rain)}"
                                 tools:text="wind speed"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                 android:textColor="@color/colorText"
@@ -329,11 +329,27 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"/>
 
+
+
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
+                <com.example.loadinganimation.LoadingAnimation
+                    android:id="@+id/loadingAnim"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:elevation="10dp"
+                    app:barType="@drawable/jelly_belly"
+                    app:boldText="false"
+                    app:textSize="15sp"
+                    app:weatherApiStatusLoading="@{viewModel.status}"
+                    app:layout_constraintTop_toBottomOf="@+id/group2"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="10dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -342,15 +358,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <com.example.loadinganimation.LoadingAnimation
-                    android:id="@+id/loadingAnim"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:elevation="10dp"
-                    app:barType="@drawable/jelly_belly"
-                    app:boldText="false"
-                    app:textSize="15sp"
-                    app:weatherApiStatusLoading="@{viewModel.status}" />
                 <ImageView
                     android:id="@+id/status_image"
                     android:layout_width="wrap_content"

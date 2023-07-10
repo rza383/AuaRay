@@ -1,9 +1,9 @@
 package kz.rza383.auaray.di
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
 import android.location.Geocoder
+import androidx.room.Room
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -16,14 +16,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kz.rza383.Constants
-import kz.rza383.auaray.data.repository.MyRepositoryImpl
+import kz.rza383.auaray.util.Constants
+import kz.rza383.auaray.data.database.WeatherDb
 import kz.rza383.auaray.network.CurrentWeatherApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.create
 import java.util.Locale
 import javax.inject.Singleton
 
@@ -82,6 +81,20 @@ object AppModule {
     fun provideGeocoder(
         @ApplicationContext context: Context
     ) = Geocoder(context, Locale.getDefault())
+
+    @Provides
+    @Singleton
+    fun provideDb(
+        @ApplicationContext context: Context
+    ) = Room.databaseBuilder(context,
+        WeatherDb::class.java,
+        "weather_database")
+        .fallbackToDestructiveMigration()
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideDao(db: WeatherDb) = db.weatherDao()
 
 
 }

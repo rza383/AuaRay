@@ -1,9 +1,7 @@
 package kz.rza383.domain.repository
 
-import com.google.android.gms.location.FusedLocationProviderClient
-import kz.rza383.auaray.data.CurrentWeather
-import kz.rza383.auaray.data.ForecastResponse
-import retrofit2.http.Query
+import kz.rza383.auaray.network.CurrentWeather
+import kz.rza383.auaray.network.ForecastResponse
 
 interface MyRepository  {
 
