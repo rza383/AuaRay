@@ -1,10 +1,12 @@
 package kz.rza383.domain.repository
 
+import com.google.android.gms.location.FusedLocationProviderClient
 import kz.rza383.auaray.data.CurrentWeather
 import kz.rza383.auaray.data.ForecastResponse
 import retrofit2.http.Query
 
 interface MyRepository  {
+
     suspend fun getCurrentWeather(
         latitude: Float,
         longitude: Float,

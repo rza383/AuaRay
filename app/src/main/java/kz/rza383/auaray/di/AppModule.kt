@@ -1,12 +1,20 @@
 package kz.rza383.auaray.di
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
+import android.location.Geocoder
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kz.rza383.Constants
 import kz.rza383.auaray.data.repository.MyRepositoryImpl
@@ -16,14 +24,16 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
+import java.util.Locale
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient{
+    fun provideOkHttpClient(): OkHttpClient {
         val interceptor : HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -33,7 +43,7 @@ object AppModule {
     }
     @Provides
     @Singleton
-    fun provideMoshi() =
+    fun provideMoshi(): Moshi =
         Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .build()
@@ -42,11 +52,36 @@ object AppModule {
     fun provideCurrentWeatherApi(
         moshi: Moshi,
         client: OkHttpClient
-    ) =  Retrofit.Builder()
+    ): CurrentWeatherApiService =  Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .baseUrl(Constants.BASE_URL)
             .client(client)
             .build()
             .create(CurrentWeatherApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideFusedLocationClient(
+        @ApplicationContext context: Context
+    ) = LocationServices.getFusedLocationProviderClient(context)
+
+    @Provides
+    @Singleton
+    @SuppressLint("MissingPermission")
+    fun provideCurrentLocationTask(
+        fusedLocationClient: Lazy<FusedLocationProviderClient>
+    ) = fusedLocationClient
+        .get()
+        .getCurrentLocation(
+        Priority.PRIORITY_HIGH_ACCURACY,
+        CancellationTokenSource().token
+    )
+
+    @Provides
+    @Singleton
+    fun provideGeocoder(
+        @ApplicationContext context: Context
+    ) = Geocoder(context, Locale.getDefault())
+
 
 }

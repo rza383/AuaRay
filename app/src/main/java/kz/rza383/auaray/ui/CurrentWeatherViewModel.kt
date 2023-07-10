@@ -1,7 +1,6 @@
 package kz.rza383.auaray.ui
 
-import android.annotation.SuppressLint
-import android.app.Application
+
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -10,16 +9,12 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableInt
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kz.rza383.auaray.data.WeatherData
@@ -29,13 +24,10 @@ import kotlinx.coroutines.launch
 import kz.rza383.auaray.R
 import kz.rza383.auaray.data.ForecastWeather
 import kz.rza383.auaray.data.WeatherItem
-import kz.rza383.domain.repository.MyRepository
-import java.text.SimpleDateFormat
-import java.time.Instant
+import kz.rza383.auaray.data.repository.MyRepositoryImpl
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 
 private const val TAG = "viewmodel"
@@ -56,21 +48,17 @@ enum class UvIndex(val stringReference: Int) {
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @HiltViewModel
 class CurrentWeatherViewModel @Inject constructor(
-    application: Application,
-    private val repository: MyRepository): AndroidViewModel(application) {
+    private val currentLocationTask: Task<Location>,
+    private val gcd: Geocoder,
+    private val repository: MyRepositoryImpl): ViewModel() {
 
     private val dailyParams = arrayOf("temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "precipitation_probability_max")
-    private val app = application
-    private val fusedLocationClient: FusedLocationProviderClient by lazy {
-        LocationServices.getFusedLocationProviderClient(app)
-    }
     private val lowRange = 1..2
     private val moderateRange = 3..5
     private val highRange = 6..7
     private val veryHighRange = 8..10
     private val _status = MutableLiveData<WeatherApiStatus>()
     val status: LiveData<WeatherApiStatus> get() = _status
-    private var cancellationTokenSource = CancellationTokenSource()
     private val _currentWeather = MutableStateFlow<WeatherData>(WeatherData(0.0, 0.0,0,0,""))
     private val _temperature = MutableStateFlow(0.0)
     val temperature: StateFlow<Double> get() = _temperature
@@ -98,11 +86,6 @@ class CurrentWeatherViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun getLocation() {
-        @SuppressLint("MissingPermission")
-        val currentLocationTask: Task<Location> = fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            cancellationTokenSource.token
-        )
         currentLocationTask.addOnCompleteListener { task: Task<Location> ->
              if (task.isSuccessful) {
                 with(task.result){
@@ -120,7 +103,6 @@ class CurrentWeatherViewModel @Inject constructor(
 
 
     private fun getLocationName() {
-        val gcd = Geocoder(app, Locale.getDefault())
         val gcdListener = @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         object : Geocoder.GeocodeListener {
             override fun onGeocode(addresses: MutableList<Address>) {
@@ -203,7 +185,7 @@ class CurrentWeatherViewModel @Inject constructor(
                 dataSet.add(Entry(days[i], temperatureList[i]))
             }
         }
-        return LineDataSet(dataSet, app.resources.getString(R.string.chart_description))
+        return LineDataSet(dataSet, repository.chartDescription)
     }
     fun getForecast(){
         viewModelScope.launch {
@@ -284,11 +266,10 @@ class CurrentWeatherViewModel @Inject constructor(
     private fun getUvIndex(uvIndex: Int) {
         when (uvIndex) {
             in lowRange -> todaysUvIndex.set(UvIndex.LOW.stringReference)
-            in highRange -> todaysUvIndex.set(R.string.low)
+            in highRange -> todaysUvIndex.set(UvIndex.HIGH.stringReference)
             in veryHighRange -> todaysUvIndex.set(UvIndex.VERYHIGH.stringReference)
             in moderateRange -> todaysUvIndex.set(UvIndex.MODERATE.stringReference)
             else -> todaysUvIndex.set(UvIndex.EXTREME.stringReference)
         }
     }
-
 }
