@@ -1,5 +1,6 @@
 package kz.rza383.auaray.data.database
 
+import androidx.annotation.NonNull
 import androidx.constraintlayout.motion.widget.FloatLayout
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -23,3 +24,13 @@ data class CurrentWeatherEntity (
     val isDay: Int
 )
 
+val PREPOPULATE_DATA = CurrentWeatherEntity(
+    "1992-06-03",
+    "",
+    0.0,
+    0,
+    0.0,
+    0.0,
+    0,
+    1
+)

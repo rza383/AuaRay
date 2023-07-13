@@ -12,6 +12,7 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
@@ -28,6 +29,7 @@ import kz.rza383.auaray.R
 import kz.rza383.auaray.network.ForecastWeather
 import kz.rza383.auaray.data.WeatherItem
 import kz.rza383.auaray.data.database.CurrentWeatherEntity
+import kz.rza383.auaray.data.database.PREPOPULATE_DATA
 import kz.rza383.auaray.data.repository.DbRepository
 import kz.rza383.auaray.data.repository.MyRepositoryImpl
 import kz.rza383.auaray.di.IoDispatcher
@@ -58,9 +60,7 @@ class CurrentWeatherViewModel @Inject constructor(
     private val currentLocationTask: Task<Location>,
     private val gcd: Geocoder,
     private val repository: MyRepositoryImpl,
-    private val dbRepository: DbRepository,
-    @IoDispatcher
-    private val ioDispatcher: CoroutineDispatcher): ViewModel() {
+    private val dbRepository: DbRepository): ViewModel() {
 
     private val dailyParams = arrayOf("temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "precipitation_probability_max")
     private val lowRange = 1..2
@@ -69,6 +69,7 @@ class CurrentWeatherViewModel @Inject constructor(
     private val veryHighRange = 8..10
     private val _status = MutableLiveData<WeatherApiStatus>()
     val weatherToday = dbRepository.today
+
     val status: LiveData<WeatherApiStatus> get() = _status
     val isLoading = ObservableBoolean()
     private val _locationName = MutableLiveData<String>("")
@@ -79,8 +80,8 @@ class CurrentWeatherViewModel @Inject constructor(
     val set: LiveData<LineDataSet> get() = _set
     private val _weatherListData = MutableLiveData<List<WeatherItem>>()
     val weatherListData: LiveData<List<WeatherItem>> get() = _weatherListData
-    private var latitudeValue: Float? = null
-    private var longitudeValue: Float? = null
+    private var latitudeValue: Float = 0F
+    private var longitudeValue: Float = 0F
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun getLocation() {
@@ -113,13 +114,13 @@ class CurrentWeatherViewModel @Inject constructor(
             }
         }
         if (Build.VERSION.SDK_INT >= 33)
-            gcd.getFromLocation(latitudeValue!!.toDouble(),
-                                longitudeValue!!.toDouble(),
+            gcd.getFromLocation(latitudeValue.toDouble(),
+                                longitudeValue.toDouble(),
                         1,
                                 gcdListener)
         else {
-            val addresses = gcd.getFromLocation(latitudeValue!!.toDouble(),
-                                                longitudeValue!!.toDouble(),
+            val addresses = gcd.getFromLocation(latitudeValue.toDouble(),
+                                                longitudeValue.toDouble(),
                                                 1)
             _locationName.postValue(addresses!!.first().locality.toString())
         }
@@ -127,8 +128,8 @@ class CurrentWeatherViewModel @Inject constructor(
 
     private suspend fun getDataFromApi(){
         val apiCallResult = repository
-            .getCurrentWeather(latitudeValue!!,
-                longitudeValue!!,
+            .getCurrentWeather(latitudeValue,
+                longitudeValue,
                 UV_INDEX,
                 PRECIPITATION_CHANCE,
                 "true",
@@ -144,9 +145,10 @@ class CurrentWeatherViewModel @Inject constructor(
             uvIndex = apiCallResult.extraData.uvIndex.first(),
             windSpeed = apiCallResult.listOfWeatherData.windSpeed
         )
-        getUvIndex(today.uvIndex.toInt())
+        Log.d(TAG, today.toString())
         dbRepository.saveWeather(today)
-
+        Log.d(TAG, dbRepository.getWeather()?.value.toString())
+        weatherToday?.value?.uvIndex?.let { getUvIndex(it) }
     }
 
     private suspend fun getForecastFromApi(){
@@ -240,12 +242,12 @@ class CurrentWeatherViewModel @Inject constructor(
         val formattedSunriseTime = sunriseTime.map {
             LocalTime.parse(it, timeInputFormat).toString()
         }
-        Log.d(TAG, "value of list ${formattedDay.joinToString (" ")}")
-        Log.d(TAG, "value of list ${tempMaxList.joinToString (" ")}")
-        Log.d(TAG, "value of list ${tempMinList.joinToString (" ")}")
-        Log.d(TAG, "value of list ${formattedSunriseTime.joinToString (" ")}")
-        Log.d(TAG, "value of list ${formattedSunsetTime.joinToString (" ")}")
-        Log.d(TAG, "value of list ${chanceOfRainList.joinToString (" ")}")
+//        Log.d(TAG, "value of list ${formattedDay.joinToString (" ")}")
+//        Log.d(TAG, "value of list ${tempMaxList.joinToString (" ")}")
+//        Log.d(TAG, "value of list ${tempMinList.joinToString (" ")}")
+//        Log.d(TAG, "value of list ${formattedSunriseTime.joinToString (" ")}")
+//        Log.d(TAG, "value of list ${formattedSunsetTime.joinToString (" ")}")
+//        Log.d(TAG, "value of list ${chanceOfRainList.joinToString (" ")}")
         val listOfForecasts = mutableListOf<WeatherItem>()
         for(i in time.indices){
             listOfForecasts.add(
@@ -271,4 +273,9 @@ class CurrentWeatherViewModel @Inject constructor(
             else -> todaysUvIndex.set(UvIndex.EXTREME.stringReference)
         }
     }
+
+    fun savePreference(isChecked: Boolean) =
+        dbRepository.updateSharedPreferences(isChecked)
+
+    fun getPreference() = dbRepository.returnSavedTheme()
 }

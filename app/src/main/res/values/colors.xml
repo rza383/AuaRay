@@ -11,4 +11,9 @@
     <color name="backgroundBottom">#F2E9E4</color>
     <color name="backgroundTop">#9A8C98</color>
     <color name="colorText">#22223B</color>
+    <color name="blue_moon">#FF25316D</color>
+    <color name="blue_soft">#FF5F9DF7</color>
+    <color name="orange_sun">#FFFD841F</color>
+    <color name="yellow_soft">#FFFDFDBD</color>
+    <color name="gray">#FF8C8C8C</color>
 </resources>

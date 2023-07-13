@@ -22,5 +22,5 @@ interface WeatherDao {
     suspend fun delete(weather: CurrentWeatherEntity)
 
     @Query("select * from `today's_weather` order by time desc limit 1")
-    fun getCurrentWeather(): LiveData<CurrentWeatherEntity>
+    fun getCurrentWeather(): LiveData<CurrentWeatherEntity>?
 }

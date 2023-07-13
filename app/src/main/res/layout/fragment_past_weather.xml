@@ -45,5 +45,14 @@
             tools:listitem="@layout/weather_item" />
 
 
+        <ImageView
+            android:id="@+id/status_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_connection_error"
+            android:layout_gravity="center"
+            app:weatherApiStatusError="@{viewModel.status}" />
+
     </LinearLayout>
+
 </layout>

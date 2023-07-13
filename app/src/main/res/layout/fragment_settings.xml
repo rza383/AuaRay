@@ -2,12 +2,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.SettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="settings" />
+        android:background="@color/frameBackground">
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/themeSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="@string/dark_mode"
+            android:thumb="@drawable/thumb_layers"
+            app:track="@drawable/track_background"
+            android:track="@drawable/track_background"
+            android:textSize="30sp"
+            android:checked="true"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
