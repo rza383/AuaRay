@@ -136,7 +136,7 @@ class CurrentWeatherViewModel @Inject constructor(
                 "1",
                 TimeZone)
         val today = CurrentWeatherEntity(
-            locationName = _locationName.value ?: "",
+            locationName = _locationName.value!!,
             chanceOfPrecipitation = apiCallResult.extraData.precipitationChance.first(),
             elevation = apiCallResult.elevation,
             temperature = apiCallResult.listOfWeatherData.temperature,
