@@ -6,6 +6,9 @@
         <variable
             name="viewModel"
             type="kz.rza383.auaray.ui.CurrentWeatherViewModel" />
+        <variable
+            name="permGranted"
+            type="Boolean" />
 
     </data>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -23,8 +26,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/mainUIElements"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:constraintLayoutVisibilityCondition="@{viewModel.weatherToday}">
+                android:layout_height="match_parent">
 
                 <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/animationView"

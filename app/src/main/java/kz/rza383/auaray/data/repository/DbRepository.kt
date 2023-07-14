@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import kz.rza383.auaray.data.WeatherItem
 import androidx.lifecycle.map
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kz.rza383.auaray.data.database.CurrentWeatherEntity
 import kz.rza383.auaray.data.database.WeatherDao
@@ -35,17 +36,17 @@ class DbRepository @Inject constructor(
 
     suspend fun getWeather() = dao.getCurrentWeather()
 
-    val today = dao.getCurrentWeather()?.map { input ->
-        WeatherToday(
-            location = input.locationName,
-            temperature = input.temperature,
-            elevation = input.elevation,
-            uvIndex = input.uvIndex.toInt(),
-            windSpeed = input.windSpeed,
-            rain = input.chanceOfPrecipitation,
-            isDay = input.isDay
-        )
-    }
+    val today = dao.getCurrentWeather().filterNotNull().map { input ->
+                    WeatherToday(
+                        temperature = input.temperature,
+                        elevation = input.elevation,
+                        uvIndex = input.uvIndex.toInt(),
+                        windSpeed = input.windSpeed,
+                        rain = input.chanceOfPrecipitation,
+                        isDay = input.isDay,
+                        location = input.locationName
+                    )
+                }
 
     fun updateSharedPreferences(isChecked: Boolean){
         if(isChecked)

@@ -1,6 +1,7 @@
 package kz.rza383.auaray.ui
 
 
+import android.annotation.SuppressLint
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -16,6 +17,9 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,7 +61,7 @@ enum class UvIndex(val stringReference: Int) {
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @HiltViewModel
 class CurrentWeatherViewModel @Inject constructor(
-    private val currentLocationTask: Task<Location>,
+    private val fusedClient: FusedLocationProviderClient,
     private val gcd: Geocoder,
     private val repository: MyRepositoryImpl,
     private val dbRepository: DbRepository): ViewModel() {
@@ -68,8 +72,7 @@ class CurrentWeatherViewModel @Inject constructor(
     private val highRange = 6..7
     private val veryHighRange = 8..10
     private val _status = MutableLiveData<WeatherApiStatus>()
-    val weatherToday = dbRepository.today
-
+    val weatherToday = dbRepository.today.asLiveData()
     val status: LiveData<WeatherApiStatus> get() = _status
     val isLoading = ObservableBoolean()
     private val _locationName = MutableLiveData<String>("")
@@ -80,12 +83,19 @@ class CurrentWeatherViewModel @Inject constructor(
     val set: LiveData<LineDataSet> get() = _set
     private val _weatherListData = MutableLiveData<List<WeatherItem>>()
     val weatherListData: LiveData<List<WeatherItem>> get() = _weatherListData
-    private var latitudeValue: Float = 0F
-    private var longitudeValue: Float = 0F
+    private var latitudeValue: Float? = null
+    private var longitudeValue: Float? = null
+
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressLint("MissingPermission")
     fun getLocation() {
-        currentLocationTask.addOnCompleteListener { task: Task<Location> ->
+        fusedClient
+            .getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                CancellationTokenSource().token
+            )
+            .addOnCompleteListener { task: Task<Location> ->
              if (task.isSuccessful) {
                 with(task.result){
                     latitudeValue = latitude.toFloat()
@@ -114,13 +124,13 @@ class CurrentWeatherViewModel @Inject constructor(
             }
         }
         if (Build.VERSION.SDK_INT >= 33)
-            gcd.getFromLocation(latitudeValue.toDouble(),
-                                longitudeValue.toDouble(),
+            gcd.getFromLocation(latitudeValue!!.toDouble(),
+                                longitudeValue!!.toDouble(),
                         1,
                                 gcdListener)
         else {
-            val addresses = gcd.getFromLocation(latitudeValue.toDouble(),
-                                                longitudeValue.toDouble(),
+            val addresses = gcd.getFromLocation(latitudeValue!!.toDouble(),
+                                                longitudeValue!!.toDouble(),
                                                 1)
             _locationName.postValue(addresses!!.first().locality.toString())
         }
@@ -128,8 +138,8 @@ class CurrentWeatherViewModel @Inject constructor(
 
     private suspend fun getDataFromApi(){
         val apiCallResult = repository
-            .getCurrentWeather(latitudeValue,
-                longitudeValue,
+            .getCurrentWeather(latitudeValue!!,
+                longitudeValue!!,
                 UV_INDEX,
                 PRECIPITATION_CHANCE,
                 "true",
@@ -147,13 +157,13 @@ class CurrentWeatherViewModel @Inject constructor(
         )
         Log.d(TAG, today.toString())
         dbRepository.saveWeather(today)
-        Log.d(TAG, dbRepository.getWeather()?.value.toString())
-        weatherToday?.value?.uvIndex?.let { getUvIndex(it) }
+        weatherToday.value?.uvIndex?.let { getUvIndex(it) }
     }
 
     private suspend fun getForecastFromApi(){
         val apiCallResult = repository
-            .getForecast(latitudeValue!!,
+            .getForecast(
+                latitudeValue!!,
                 longitudeValue!!,
                 dailyParams,
                 "7",

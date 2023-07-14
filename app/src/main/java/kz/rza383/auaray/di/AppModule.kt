@@ -92,18 +92,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    @SuppressLint("MissingPermission")
-    fun provideCurrentLocationTask(
-        fusedLocationClient: Lazy<FusedLocationProviderClient>
-    ) = fusedLocationClient
-        .get()
-        .getCurrentLocation(
-        Priority.PRIORITY_HIGH_ACCURACY,
-        CancellationTokenSource().token
-    )
-
-    @Provides
-    @Singleton
     fun provideGeocoder(
         @ApplicationContext context: Context
     ) = Geocoder(context, Locale.getDefault())

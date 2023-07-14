@@ -43,10 +43,10 @@ fun bindText(view: TextView,
 
 @BindingAdapter("constraintLayoutVisibilityCondition")
 fun bindConstraintGroupVisibility(group: ConstraintLayout,
-                                  weatherToday: Any?) {
-    when(weatherToday) {
-        null -> group.visibility = ConstraintLayout.GONE
-        else -> group.visibility = ConstraintLayout.VISIBLE
+                                  permGranted: Boolean) {
+    when(permGranted) {
+        false -> group.visibility = ConstraintLayout.GONE
+        true -> group.visibility = ConstraintLayout.VISIBLE
     }
 }
 
