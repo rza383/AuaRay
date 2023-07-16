@@ -1,32 +1,34 @@
 <resources>
-    <string name="app_name">Aua Ray</string>
+    <string name="app_name">Weather App</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="low">tömen</string>
-    <string name="moderate">ortaşa</string>
-    <string name="high">zor</string>
-    <string name="veryHigh">asa zor</string>
-    <string name="extreme">ekstremaldy</string>
-    <string name="today_icon_text">bügın</string>
-    <string name="past_weather_icon_text">kelesi 7 kün</string>
-    <string name="settings_icon_text">baptau</string>
-    <string name="rightNow">aua ray däl qazir</string>
-    <string name="permissionTitle">Nazar audaryñyz!</string>
-    <string name="permissionText">Aua raiyn naqty körsetu üşın, GPS paidalanuga rūqsat qajet </string>
-    <string name="permissionPositive">rūqsat beru</string>
-    <string name="persmissionNegative">tyiym salu</string>
+    <string name="low">low</string>
+    <string name="moderate">moderate</string>
+    <string name="high">high</string>
+    <string name="veryHigh">very high</string>
+    <string name="extreme">extreme</string>
+    <string name="today_icon_text">today</string>
+    <string name="past_weather_icon_text">next 7 days</string>
+    <string name="settings_icon_text">settings</string>
+    <string name="rightNow">weather right now</string>
+    <string name="permissionTitle">Attention!</string>
+    <string name="permissionText">To get the correct weather, GPS access is required </string>
+    <string name="permissionPositive">yes</string>
+    <string name="persmissionNegative">no</string>
     <string name="currentTemperature">%s°C</string>
-    <string name="elevation">Biıktık</string>
-    <string name="wind">Jel</string>
-    <string name="uvIndex">Ütrakülgın indeks</string>
-    <string name="precipChance">Jauyn</string>
+    <string name="elevation">Elevation</string>
+    <string name="wind">Wind</string>
+    <string name="uvIndex">UV index</string>
+    <string name="precipChance">Precipitation</string>
     <string name="currentUvIndex">%s</string>
     <string name="currentPrecipitationChance">%s%%</string>
     <string name="currentElevation">%s m</string>
     <string name="currentWindSpeed">%s km/h</string>
     <string name="currentLocalityName">%s</string>
-    <string name="weather_forecast">aua raiy boljamy</string>
-    <string name="chart_description">7 kün boljam</string>
+    <string name="weather_forecast">weather forecast</string>
+    <string name="chart_description">7 day forecast</string>
     <string name="temp_max_min">%s°C/%s°C</string>
-    <string name="dark_mode">tüngı rejim</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="language">Choose language</string>
+
 </resources>

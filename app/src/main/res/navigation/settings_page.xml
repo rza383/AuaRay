@@ -3,11 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/settings_page"
+    android:label="@string/settings_icon_text"
     app:startDestination="@+id/settings">
 
     <fragment
         android:id="@+id/settings"
         android:name="kz.rza383.auaray.ui.SettingsFragment"
-        android:label="Settings"
+        android:label="@string/settings_icon_text"
         tools:layout="@layout/fragment_settings" />
 </navigation>
