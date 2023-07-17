@@ -51,7 +51,7 @@ class SettingsFragment : Fragment(), AdapterView.OnItemSelectedListener {
             locales.
             get(0).
             language
-        val pos = if(lang == "kk") 0 else 1
+        val pos = if (lang == "kk") 0 else 1
         ArrayAdapter.createFromResource(
             requireContext(),
             R.array.language_choices,

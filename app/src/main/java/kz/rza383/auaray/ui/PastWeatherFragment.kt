@@ -1,5 +1,6 @@
 package kz.rza383.auaray.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -53,6 +54,7 @@ class PastWeatherFragment : Fragment() {
     }
 
 
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -79,6 +81,7 @@ class PastWeatherFragment : Fragment() {
             set.setColors(*ColorTemplate.MATERIAL_COLORS)
             set.valueTextSize = 10f
             forecastChart.data = LineData(set)
+            set.label = getString(R.string.chart_description)
             forecastChart.notifyDataSetChanged()
             forecastChart.invalidate()
         }
