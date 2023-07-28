@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.loadinganimation.LoadingAnimation
 import kz.rza383.auaray.R
-import kz.rza383.auaray.data.WeatherItem
+import kz.rza383.auaray.model.WeatherItem
 import kz.rza383.auaray.ui.ForecastAdapter
 import kz.rza383.auaray.ui.WeatherApiStatus
 

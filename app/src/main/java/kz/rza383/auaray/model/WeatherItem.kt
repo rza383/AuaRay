@@ -1,4 +1,4 @@
-package kz.rza383.auaray.data
+package kz.rza383.auaray.model
 
 data class WeatherItem (
     val date: String,

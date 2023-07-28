@@ -64,6 +64,7 @@ object AppModule {
         }
         return OkHttpClient.Builder().apply {
             addInterceptor(interceptor) }
+            .cache(null)
             .build()
     }
     @Provides

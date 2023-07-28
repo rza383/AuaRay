@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import kz.rza383.auaray.data.WeatherItem
+import kz.rza383.auaray.model.WeatherItem
 import kz.rza383.auaray.databinding.WeatherItemBinding
 
 class ForecastAdapter: ListAdapter<WeatherItem,

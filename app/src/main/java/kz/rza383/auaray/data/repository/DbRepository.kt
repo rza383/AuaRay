@@ -1,16 +1,8 @@
 package kz.rza383.auaray.data.repository
 
-import android.app.Application
 import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
-import android.util.Log
-import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kz.rza383.auaray.data.WeatherItem
-import androidx.lifecycle.map
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kz.rza383.auaray.data.database.CurrentWeatherEntity

@@ -64,11 +64,12 @@ class PastWeatherFragment : Fragment() {
                 ContextCompat.getColor(requireContext(), R.color.backgroundBottom))
             description.isEnabled = false
             xAxis.apply {
-                setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE)
-                setTextSize(10f)
-                setDrawAxisLine(false)
-                setDrawGridLines(false)
-                granularity = 1f
+                isEnabled = false
+//                setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE)
+//                setTextSize(10f)
+//                setDrawAxisLine(false)
+//                setDrawGridLines(false)
+//                granularity = 1f
 
             }
             axisLeft.apply {

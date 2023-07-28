@@ -21,23 +21,14 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
-import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kz.rza383.auaray.network.WeatherData
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kz.rza383.auaray.R
 import kz.rza383.auaray.network.ForecastWeather
-import kz.rza383.auaray.data.WeatherItem
+import kz.rza383.auaray.model.WeatherItem
 import kz.rza383.auaray.data.database.CurrentWeatherEntity
-import kz.rza383.auaray.data.database.PREPOPULATE_DATA
 import kz.rza383.auaray.data.repository.DbRepository
 import kz.rza383.auaray.data.repository.MyRepositoryImpl
-import kz.rza383.auaray.di.IoDispatcher
-import kz.rza383.domain.WeatherToday
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -112,22 +103,25 @@ class CurrentWeatherViewModel @Inject constructor(
 
 
     private fun getLocationName() {
-        val gcdListener = @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        object : Geocoder.GeocodeListener {
-            override fun onGeocode(addresses: MutableList<Address>) {
-                _locationName.postValue(addresses.first().locality.toString())
-                Log.d(TAG, "geocoding value: $locationName")
+
+        if (Build.VERSION.SDK_INT >= 33){
+            val gcdListener = @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+            object : Geocoder.GeocodeListener {
+                override fun onGeocode(addresses: MutableList<Address>) {
+                    _locationName.postValue(addresses.first().locality.toString())
+                    Log.d(TAG, "geocoding value: $locationName")
+                }
+                override fun onError(errorMessage: String?) {
+                    super.onError(errorMessage)
+                    Log.d(TAG, errorMessage!!)
+                }
             }
-            override fun onError(errorMessage: String?) {
-                super.onError(errorMessage)
-                Log.d(TAG, errorMessage!!)
-            }
-        }
-        if (Build.VERSION.SDK_INT >= 33)
             gcd.getFromLocation(latitudeValue!!.toDouble(),
-                                longitudeValue!!.toDouble(),
-                        1,
-                                gcdListener)
+                longitudeValue!!.toDouble(),
+                1,
+                gcdListener)
+        }
+
         else {
             val addresses = gcd.getFromLocation(latitudeValue!!.toDouble(),
                                                 longitudeValue!!.toDouble(),
@@ -146,7 +140,7 @@ class CurrentWeatherViewModel @Inject constructor(
                 "1",
                 TimeZone)
         val today = CurrentWeatherEntity(
-            locationName = _locationName.value!!,
+            locationName = _locationName.value ?: "TSHO",
             chanceOfPrecipitation = apiCallResult.extraData.precipitationChance.first(),
             elevation = apiCallResult.elevation,
             temperature = apiCallResult.listOfWeatherData.temperature,
@@ -168,7 +162,7 @@ class CurrentWeatherViewModel @Inject constructor(
                 dailyParams,
                 "7",
                 TimeZone)
-        Log.d(TAG, "${apiCallResult.forecast}")
+        Log.d(TAG, "result of a call${apiCallResult.forecast}")
         forecast.value = apiCallResult.forecast
         forecast.value?.let {
             constructListData(
@@ -180,18 +174,17 @@ class CurrentWeatherViewModel @Inject constructor(
                 it.chanceOfPrecipitationMax
             )
         _set.postValue(prepareDataForChart())
-
         }
 
     }
 
     private fun prepareDataForChart(): LineDataSet {
         val dataSet = mutableListOf<Entry>()
-        val days = forecast.value?.time?.map { date ->
-                date.split("-").last().toFloat() }
-
+        val days = listOf(1..7).flatten().map { it.toFloat() }
+//            forecast.value?.time?.map { date ->
+//                date.split("-").last().toFloat() }
         val temperatureList = forecast.value?.tempMax?.map { t -> t.toFloat() }
-        if (days != null && temperatureList != null) {
+        if (temperatureList != null) {
             for (i in days.indices) {
                 dataSet.add(Entry(days[i], temperatureList[i]))
             }
@@ -206,7 +199,7 @@ class CurrentWeatherViewModel @Inject constructor(
                 _status.value = WeatherApiStatus.DONE
             } catch (e: Exception){
                 _status.value = WeatherApiStatus.ERROR
-                Log.d(TAG, e.message!!)
+                Log.d(TAG, "forecast network error ${e.message!!}")
             }
         }
     }
@@ -252,12 +245,6 @@ class CurrentWeatherViewModel @Inject constructor(
         val formattedSunriseTime = sunriseTime.map {
             LocalTime.parse(it, timeInputFormat).toString()
         }
-//        Log.d(TAG, "value of list ${formattedDay.joinToString (" ")}")
-//        Log.d(TAG, "value of list ${tempMaxList.joinToString (" ")}")
-//        Log.d(TAG, "value of list ${tempMinList.joinToString (" ")}")
-//        Log.d(TAG, "value of list ${formattedSunriseTime.joinToString (" ")}")
-//        Log.d(TAG, "value of list ${formattedSunsetTime.joinToString (" ")}")
-//        Log.d(TAG, "value of list ${chanceOfRainList.joinToString (" ")}")
         val listOfForecasts = mutableListOf<WeatherItem>()
         for(i in time.indices){
             listOfForecasts.add(
