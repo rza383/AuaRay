@@ -10,7 +10,7 @@ interface CurrentWeatherApiService {
                                   @Query("longitude") longitude: Float,
                                   @Query("daily") uvIndex: String,
                                   @Query("daily") precipitationChance: String,
-                                  @Query("current_weather") isCurrentWeather: String,
+                                  @Query("current_weather") isCurrentWeather: Boolean,
                                   @Query("forecast_days") forecastDays: String,
                                   @Query("timezone") auto: String): CurrentWeather
     @GET("/v1/forecast?")
