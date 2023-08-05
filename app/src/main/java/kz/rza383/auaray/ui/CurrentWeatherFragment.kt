@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -41,10 +42,8 @@ class CurrentWeatherFragment : Fragment() {
                 it.value
             }
             if (granted){
-                getLocation()
+                sharedViewModel.getLocation()
             }
-            else
-                requestPermissionToGetLocation()
         }
     private val sharedViewModel: CurrentWeatherViewModel by activityViewModels()
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -85,7 +84,7 @@ class CurrentWeatherFragment : Fragment() {
             )
             == PackageManager.PERMISSION_GRANTED
         ) {
-            binding.viewModel!!.getLocation()
+            sharedViewModel.getLocation()
         }
         else requestPermissionToGetLocation()
     }

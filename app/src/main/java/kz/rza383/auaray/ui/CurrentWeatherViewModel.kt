@@ -136,7 +136,7 @@ class CurrentWeatherViewModel @Inject constructor(
                 longitudeValue!!,
                 UV_INDEX,
                 PRECIPITATION_CHANCE,
-                "true",
+                true,
                 "1",
                 TimeZone)
         val today = CurrentWeatherEntity(

@@ -27,7 +27,7 @@ class MyRepositoryImpl @Inject constructor(
         longitude: Float,
         uvIndex: String,
         precipitationChance: String,
-        isCurrentWeather: String,
+        isCurrentWeather: Boolean,
         forecastDays: String,
         auto: String
     ): CurrentWeather =
